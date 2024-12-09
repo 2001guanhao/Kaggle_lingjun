@@ -1,0 +1,75 @@
+# 通用配置
+general:
+  seed: 42
+  device: auto  # auto/cpu/cuda/mps
+  num_workers: 4
+  log_level: INFO
+
+# 数据配置
+data:
+  train_path: data/raw/train.csv
+  test_path: data/raw/test.csv
+  val_size: 0.2
+  batch_size: 64
+
+# 自编码器配置
+autoencoder:
+  encoding_dim: 100
+  epochs: 50
+  learning_rate: 0.001
+  batch_size: 32
+  early_stopping: 10
+
+# CatBoost配置
+catboost:
+  iterations: 2000
+  learning_rate: 0.01
+  depth: 6
+  early_stopping_rounds: 200
+
+# GRU配置
+gru:
+  hidden_dim: 128
+  num_layers: 2
+  dropout: 0.2
+  epochs: 100
+  learning_rate: 0.001
+
+# Transformer配置
+transformer:
+  d_model: 256
+  nhead: 8
+  num_layers: 3
+  dropout: 0.1
+  epochs: 100
+  learning_rate: 0.001
+
+# Ridge配置
+ridge:
+  alpha: 1.0
+
+# LightGBM配置
+lgbm:
+  n_estimators: 1000
+  learning_rate: 0.01
+  num_leaves: 31
+  max_depth: -1
+  min_child_samples: 20
+  subsample: 0.8
+  colsample_bytree: 0.8
+
+# XGBoost配置
+xgb:
+  n_estimators: 1000
+  learning_rate: 0.01
+  max_depth: 6
+  min_child_weight: 1
+  subsample: 0.8
+  colsample_bytree: 0.8
+  tree_method: hist
+
+# 集成配置
+ensemble:
+  weight_search_steps: 11
+  save_predictions: true
+  save_models: true 

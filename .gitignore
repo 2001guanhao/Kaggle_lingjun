@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project specific
+data/raw/*
+data/processed/*
+data/output/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/output/.gitkeep
+models/*
+!models/.gitkeep
+predictions/*
+!predictions/.gitkeep
+logs/*
+!logs/.gitkeep
+catboost_info/
+lightning_logs/
+wandb/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Virtual Environment
+venv/
+env/
+.env/
