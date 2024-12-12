@@ -1,31 +1,56 @@
 # 通用配置
 general:
   seed: 42
-  device: auto  # auto/cpu/cuda/mps
+  device: mps  # auto/cpu/cuda/mps
   num_workers: 4
   log_level: INFO
+
+# 深度学习通用配置
+deep_learning:
+  batch_size: 32
+  accumulation_steps: 8
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  mixed_precision: true
+  save_interval: 5
 
 # 数据配置
 data:
   train_path: data/raw/train.csv
   test_path: data/raw/test.csv
   val_size: 0.2
-  batch_size: 64
-
-# 自编码器配置
-autoencoder:
-  encoding_dim: 100
-  epochs: 50
-  learning_rate: 0.001
-  batch_size: 32
-  early_stopping: 10
+  batch_size: 32  # 统一使用32的batch size
+  feature_prefix: 'X'
+  target_prefix: 'Y'
+  n_targets: 8
+  index_col: 'ID'
 
 # CatBoost配置
 catboost:
-  iterations: 2000
+  # 基础参数
+  iterations: 1000
   learning_rate: 0.01
-  depth: 6
-  early_stopping_rounds: 200
+  depth: 8
+  l2_leaf_reg: 0.1
+  random_strength: 0.1
+  bagging_temperature: 0.8
+  verbose: -1
+  
+  # 优化参数
+  optimization:
+    init_rounds: 50
+    final_rounds: 3000
+    early_stopping: 50
+    max_trials: 5
+    
+    # 参数搜索空间
+    param_space:
+      depth: [4, 10]
+      learning_rate: [0.001, 0.1]
+      l2_leaf_reg: [0, 10]
+      random_strength: [0, 10]
+      bagging_temperature: [0, 1]
 
 # GRU配置
 gru:
@@ -34,6 +59,7 @@ gru:
   dropout: 0.2
   epochs: 100
   learning_rate: 0.001
+  seq_length: 10  # 时序长度
 
 # Transformer配置
 transformer:
@@ -46,30 +72,147 @@ transformer:
 
 # Ridge配置
 ridge:
-  alpha: 1.0
+  alpha: 1.0  # 增加正则化强度
 
 # LightGBM配置
 lgbm:
-  n_estimators: 1000
+  # 基础参数
+  objective: regression
+  metric: rmse
+  num_leaves: 200
   learning_rate: 0.01
-  num_leaves: 31
-  max_depth: -1
-  min_child_samples: 20
-  subsample: 0.8
-  colsample_bytree: 0.8
+  feature_fraction: 0.7
+  bagging_fraction: 0.8
+  bagging_freq: 1
+  max_bin: 512
+  min_data_in_leaf: 1000
+  lambda_l1: 0.1
+  lambda_l2: 0.1
+  verbose: -1
+  feature_pre_filter: false
+  
+  # 优化参数
+  optimization:
+    init_rounds: 300
+    final_rounds: 3000
+    early_stopping: 100
+    max_trials: 10
+    
+    # 参数搜索空间
+    param_space:
+      num_leaves: [100, 300]
+      learning_rate: [0.005, 0.05]
+      feature_fraction: [0.6, 0.8]
+      bagging_fraction: [0.7, 0.9]
+      min_data_in_leaf: [500, 1500]
+      lambda_l1: [0.05, 0.2]
+      lambda_l2: [0.05, 0.2]
 
 # XGBoost配置
 xgb:
-  n_estimators: 1000
-  learning_rate: 0.01
+  # 基础参数
+  objective: 'reg:squarederror'
+  eval_metric: 'rmse'
   max_depth: 6
-  min_child_weight: 1
+  eta: 0.01
   subsample: 0.8
   colsample_bytree: 0.8
-  tree_method: hist
+  min_child_weight: 20
+  lambda: 0.1
+  alpha: 0.1
+  verbosity: 1
+  
+  # 优化参数
+  optimization:
+    init_rounds: 300
+    final_rounds: 3000
+    early_stopping: 100
+    max_trials: 10
+    
+    # 参数搜索空间
+    param_space:
+      max_depth: [3, 10]
+      eta: [0.001, 0.1]
+      subsample: [0.5, 1.0]
+      colsample_bytree: [0.5, 1.0]
+      min_child_weight: [1, 50]
+      lambda: [0, 10]
+      alpha: [0, 10]
 
 # 集成配置
 ensemble:
   weight_search_steps: 11
   save_predictions: true
   save_models: true 
+
+# 优化配置
+optimization:
+  # 通用优化配置
+  max_trials: 10          # 最大优化次数
+  no_improve_trials: 2    # 连续多少次无改善时早停
+  init_rounds: 300        # 优化时的训练轮数
+  final_rounds: 3000      # 最终训练轮数
+  early_stopping: 100     # 模型训练的早停轮数
+  
+  # 学习率调度
+  lr_scheduler:
+    type: 'cosine'        # 余弦退火
+    warmup_rounds: 1000   # 预热轮数
+    
+  # LightGBM参数搜索空间
+  lgbm_space:
+    num_leaves: [150, 300]
+    learning_rate: [0.005, 0.05]
+    feature_fraction: [0.6, 0.8]
+    bagging_fraction: [0.7, 0.9]
+    min_data_in_leaf: [800, 1200]
+    lambda_l1: [0.05, 0.2]
+    lambda_l2: [0.05, 0.2]
+    
+  # XGBoost参数搜索空间  
+  xgb_space:
+    max_depth: [3, 10]
+    eta: [0.001, 0.1]
+    subsample: [0.5, 1.0]
+    colsample_bytree: [0.5, 1.0]
+    min_child_weight: [1, 50]
+    lambda: [0, 10]
+    alpha: [0, 10]
+    
+  # CatBoost参数搜索空间
+  catboost_space:
+    depth: [4, 10]
+    learning_rate: [0.001, 0.1]
+    l2_leaf_reg: [0, 10]
+    random_strength: [0, 10]
+    bagging_temperature: [0, 1]
+
+# 可视化配置
+visualization:
+  plot_dir: plots
+  save_format: png
+  dpi: 300 
+
+# 添加数据处理配置
+data_processing:
+  feature_selection:
+    n_features: 100
+    method: 'lightgbm'
+  scaling:
+    method: 'standard'
+    target_scaling: true
+
+# 添加实验配置
+experiment:
+  name: 'default'
+  description: ''
+  tags: []
+  ml_only: false
+  save_intermediate: true
+
+# 数据预处理配置
+preprocessing:
+  windows: [5, 10, 20, 30]
+  use_diff_features: true
+  use_rolling_features: true
+  standardize: true

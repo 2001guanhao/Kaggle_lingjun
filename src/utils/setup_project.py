@@ -2,7 +2,6 @@
 import logging
 from pathlib import Path
 from .file_utils import ensure_dir
-from .create_test_data import create_sample_data
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,8 @@ def setup_project():
         'data/output',
         'models',
         'logs',
-        'predictions'
+        'predictions',
+        'plots'  # 添加plots目录用于保存图表
     ]
     
     for d in dirs:
@@ -25,14 +25,12 @@ def setup_project():
         ensure_dir(dir_path)
         logger.info(f"Created directory: {dir_path}")
     
-    # 生成示例数据
+    # 检查数据文件是否存在
     data_dir = root / 'data/raw'
-    if not (data_dir / 'train.csv').exists():
-        logger.info("Generating sample data...")
-        train_data, test_data = create_sample_data()
-        train_data.to_csv(data_dir / 'train.csv', index=False)
-        test_data.to_csv(data_dir / 'test.csv', index=False)
-        logger.info("Sample data generated successfully")
+    if not (data_dir / 'train.parquet').exists():
+        logger.warning("训练数据文件不存在: data/raw/train.parquet")
+    if not (data_dir / 'test.parquet').exists():
+        logger.warning("测试数据文件不存在: data/raw/test.parquet")
 
 if __name__ == "__main__":
     setup_project() 

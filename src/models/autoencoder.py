@@ -29,7 +29,7 @@ class AutoEncoder(nn.Module):
         decoded = self.decoder(encoded)
         return encoded, decoded
 
-def train_autoencoder(train_data, test_data, device='cpu'):
+def train_autoencoder(train_data, test_data, device='mps'):
     """训练自编码器并返回降维后的数据"""
     logger.info("========== 自编码器训练开始 ==========")
     
